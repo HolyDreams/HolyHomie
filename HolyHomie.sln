@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.3.32811.315
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HolyHomie", "HolyHomie.csproj", "{C6FB09F7-A2E3-4CBC-81B1-D63DA4C0D7D3}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C6FB09F7-A2E3-4CBC-81B1-D63DA4C0D7D3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C6FB09F7-A2E3-4CBC-81B1-D63DA4C0D7D3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C6FB09F7-A2E3-4CBC-81B1-D63DA4C0D7D3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C6FB09F7-A2E3-4CBC-81B1-D63DA4C0D7D3}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {FEEB0ED6-708D-41AB-8A56-7442B0B1071C}
+	EndGlobalSection
+EndGlobal
