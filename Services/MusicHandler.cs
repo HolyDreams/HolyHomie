@@ -5,6 +5,8 @@ using Victoria;
 using Discord;
 using System.Collections.Concurrent;
 using Victoria.EventArgs;
+using Victoria.Enums;
+using YamlDotNet.Core.Tokens;
 
 namespace HolyHomie.Services
 {
@@ -15,6 +17,7 @@ namespace HolyHomie.Services
         private readonly IServiceProvider _services;
         private readonly LavaNode _lavaNode;
         private readonly ConcurrentDictionary<ulong, CancellationTokenSource> _disconnectTokens;
+        public readonly HashSet<ulong> VoteQueue;
 
         public MusicHandler(DiscordSocketClient client, CommandService cmdService, IServiceProvider services, LavaNode lavaNode)
         {
@@ -23,6 +26,7 @@ namespace HolyHomie.Services
             _services = services;
             _lavaNode = lavaNode;
             _disconnectTokens = new ConcurrentDictionary<ulong, CancellationTokenSource>();
+            VoteQueue = new HashSet<ulong>();
         }
 
         public async Task InitializeAsync()
@@ -45,8 +49,8 @@ namespace HolyHomie.Services
 
             if (message.HasMentionPrefix(_client.CurrentUser, ref argPos) || message.HasCharPrefix('!', ref argPos) || !message.Author.IsBot || socketMessage.Channel.Id == 810298193945428039)
             {
-                var context = new SocketCommandContext(_client, message);
-                var result = await _cmdService.ExecuteAsync(context, argPos, _services);
+                    var context = new SocketCommandContext(_client, message);
+                    var result = await _cmdService.ExecuteAsync(context, argPos, _services);
             }
         }
 
@@ -60,6 +64,12 @@ namespace HolyHomie.Services
 
         private async Task TrackStartedAsync(TrackStartEventArgs arg)
         {
+            var builder = new EmbedBuilder()
+                                .WithDescription($"Сейчас играет: {arg.Track.Title}")
+                                .WithColor(new Color(69, 230, 255))
+                                .WithThumbnailUrl(await arg.Track.FetchArtworkAsync());
+                                var embed = builder.Build();
+            await arg.Player.TextChannel.SendMessageAsync(embed: embed);
             if (!_disconnectTokens.TryGetValue(arg.Player.VoiceChannel.Id, out var value))
             {
                 return;
@@ -71,13 +81,10 @@ namespace HolyHomie.Services
             }
 
             value.Cancel(true);
-            Console.WriteLine("Автодисконект отключён.");
-            await arg.Player.TextChannel.SendMessageAsync("Автодисконект отключён.");
         }
-
         private async Task TrackEndedAsync(TrackEndedEventArgs args)
         {
-            if (args.Reason != Victoria.Enums.TrackEndReason.Finished)
+            if (args.Reason != TrackEndReason.Finished)
             {
                 return;
             }
@@ -85,21 +92,27 @@ namespace HolyHomie.Services
             var player = args.Player;
             if (!player.Queue.TryDequeue(out var lavaTrack))
             {
-                await player.TextChannel.SendMessageAsync("Очередь пуста! Добавь музычки для удовольствия");
-                //_ = InitiateDisconnectAsync(args.Player, TimeSpan.FromMinutes(5d));
-                //Console.WriteLine("Автодисконект включён.");
+                var builder = new EmbedBuilder()
+                    .WithDescription($"Очередь закончилась, закажи что нить, чтобы продолжить веселье!")
+                    .WithColor(new Color(69, 230, 255));
+                var embed = builder.Build();
+                await player.TextChannel.SendMessageAsync(embed: embed);
+                _ = InitiateDisconnectAsync(args.Player, TimeSpan.FromSeconds(60));
                 return;
             }
 
-            if (!(lavaTrack is LavaTrack track))
+            if (lavaTrack is null)
             {
-                await player.TextChannel.SendMessageAsync("Следующая композиция не песня!");
+                var builder = new EmbedBuilder()
+                    .WithDescription($"Дальше идёт не песня!")
+                    .WithColor(new Color(69, 230, 255));
+                var embed = builder.Build();
+                await player.TextChannel.SendMessageAsync(embed: embed);
                 return;
             }
 
-            await args.Player.PlayAsync(track);
+            await args.Player.PlayAsync(lavaTrack);
         }
-
         private async Task InitiateDisconnectAsync(LavaPlayer player, TimeSpan timeSpan)
         {
             if (!_disconnectTokens.TryGetValue(player.VoiceChannel.Id, out var value))
@@ -113,13 +126,13 @@ namespace HolyHomie.Services
                 value = _disconnectTokens[player.VoiceChannel.Id];
             }
 
-            Console.WriteLine($"Автодисконект был установлен! Отключение через {timeSpan}...");
             var isCancelled = SpinWait.SpinUntil(() => value.IsCancellationRequested, timeSpan);
-
-            if (isCancelled) return;
+            if (isCancelled)
+            {
+                return;
+            }
 
             await _lavaNode.LeaveAsync(player.VoiceChannel);
-            Console.WriteLine($"Автодиcконект прошёл успешно!");
         }
 
         private Task LogAsync(LogMessage logMessage)

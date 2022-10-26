@@ -85,21 +85,22 @@ namespace HolyHomie.Services
             {
                 Console.WriteLine("here2");
             }
-            await messages.First().AddReactionAsync(new Emoji("🟪"));
-            await messages.First().AddReactionAsync(new Emoji("🟥"));
-            await messages.First().AddReactionAsync(new Emoji("🟧"));
-            await messages.First().AddReactionAsync(new Emoji("🟦"));
-            await messages.First().AddReactionAsync(new Emoji("🟫"));
-            await messages.First().AddReactionAsync(new Emoji("🟡"));
-            await messages.First().AddReactionAsync(new Emoji("🔴"));
-            await messages.First().AddReactionAsync(new Emoji("🟩"));
-            await messages.First().AddReactionAsync(new Emoji("🤡"));
-            await messages.First().AddReactionAsync(new Emoji("🎦"));
-            await messages.First().AddReactionAsync(new Emoji("🚹"));
-            await messages.First().AddReactionAsync(new Emoji("🚺"));
-            await messages.First().AddReactionAsync(new Emoji("⚧"));
-            await messages.First().AddReactionAsync(new Emoji("🚁"));
-            await messages.First().AddReactionAsync(new Emoji("🟠"));
+            //При необходимости добавтиь какой то смайл к сообщению с ролями, дописать ниже.
+            //await messages.First().AddReactionAsync(new Emoji("🟪"));
+            //await messages.First().AddReactionAsync(new Emoji("🟥"));
+            //await messages.First().AddReactionAsync(new Emoji("🟧"));
+            //await messages.First().AddReactionAsync(new Emoji("🟦"));
+            //await messages.First().AddReactionAsync(new Emoji("🟫"));
+            //await messages.First().AddReactionAsync(new Emoji("🟡"));
+            //await messages.First().AddReactionAsync(new Emoji("🔴"));
+            //await messages.First().AddReactionAsync(new Emoji("🟩"));
+            //await messages.First().AddReactionAsync(new Emoji("🤡"));
+            //await messages.First().AddReactionAsync(new Emoji("🎦"));
+            //await messages.First().AddReactionAsync(new Emoji("🚹"));
+            //await messages.First().AddReactionAsync(new Emoji("🚺"));
+            //await messages.First().AddReactionAsync(new Emoji("⚧"));
+            //await messages.First().AddReactionAsync(new Emoji("🚁"));
+            //await messages.First().AddReactionAsync(new Emoji("🟠"));
         }
         public async Task MessageRecivedAsync(SocketMessage socketMessage)
         {
@@ -108,11 +109,16 @@ namespace HolyHomie.Services
             var emoteMasterCat = Emote.Parse("<:MasterCAT:822388560790814781>");
             var emoteHSHi = Emote.Parse("<:hshi:706589400401707018>");
             var emoteVibeHi = Emote.Parse("<:vibeHi:1031870617428963368>");
+            var emoteNikifor = Emote.Parse("<:Nikifor:1031674334277816370>");
             var p = new Emoji("🇵");
             var i = new Emoji("🇮");
             var z = new Emoji("🇿");
             var d = new Emoji("🇩");
             var a = new Emoji("🇦");
+            var b = new Emoji("🇧");
+            var l = new Emoji("🇱");
+            var y = new Emoji("🇾");
+            var t = new Emoji("🇹");
             string content = message.Content;
             string[] filtersEmoteMasterCat = { ":MasterCAT:" };
             bool containsEmoteMasterCat = filtersEmoteMasterCat.Any(x => content.Split(" ").Any(y => y.Contains(x)));
@@ -122,6 +128,8 @@ namespace HolyHomie.Services
             bool containsEmoteVibeHi = filtersVibeHi.Any(x => content.Split(" ").Any(y => y.Contains(x)));
             string[] filtersMirakeDance = { ":mirake1Dance:" };
             bool containsEmoteMirakeDance = filtersMirakeDance.Any(x => content.Split(" ").Any(y => y.Contains(x)));
+            string[] filtersNikifor = { ":Nikifor:" };
+            bool containsEmoteNikifor = filtersNikifor.Any(x => content.Split(" ").Any(y => y.Contains(x)));
 
             if (containsEmoteMasterCat)
             {
@@ -135,16 +143,31 @@ namespace HolyHomie.Services
             {
                 await message.AddReactionAsync(emoteVibeHi);
             }
-            if (message.Content.Equals("Да") || message.Content.Equals("Да!") || message.Content.Equals("да") || message.Content.Equals("Да?") || message.Content.Equals("да!") || message.Content.Equals("да?") || message.Content.Equals("ДА") || message.Content.Equals("ДА?") || message.Content.Equals("ДА!") ||
-                message.Content.EndsWith(" Да") || message.Content.EndsWith(" Да!") || message.Content.EndsWith(" Да?") || message.Content.EndsWith(" да!") || message.Content.EndsWith(" да") || message.Content.EndsWith(" да?") || message.Content.EndsWith(" ДА") || message.Content.EndsWith(" ДА?") || message.Content.EndsWith(" ДА!") ||
-                message.Content.Equals("Da") || message.Content.Equals("Da!") || message.Content.Equals("da") || message.Content.Equals("Da?") || message.Content.Equals("da!") || message.Content.Equals("da?") || message.Content.Equals("DA") || message.Content.Equals("DA?") || message.Content.Equals("DA!") ||
-                message.Content.EndsWith(" Da") || message.Content.EndsWith(" Da!") || message.Content.EndsWith(" Da?") || message.Content.EndsWith(" da!") || message.Content.EndsWith(" da") || message.Content.EndsWith(" da?") || message.Content.EndsWith(" DA") || message.Content.EndsWith(" DA?") || message.Content.EndsWith(" DA!"))
+            if (message.Author.Id != 284953111603314688 || message.Author.Id != 1030169288482504796)
             {
-                await message.AddReactionAsync(p);
-                await message.AddReactionAsync(i);
-                await message.AddReactionAsync(z);
-                await message.AddReactionAsync(d);
-                await message.AddReactionAsync(a);
+                if (message.Content.Equals("Да") || message.Content.Equals("Да!") || message.Content.Equals("да") || message.Content.Equals("Да?") || message.Content.Equals("да!") || message.Content.Equals("да?") || message.Content.Equals("ДА") || message.Content.Equals("ДА?") || message.Content.Equals("ДА!") ||
+                    message.Content.EndsWith(" Да") || message.Content.EndsWith(" Да!") || message.Content.EndsWith(" Да?") || message.Content.EndsWith(" да!") || message.Content.EndsWith(" да") || message.Content.EndsWith(" да?") || message.Content.EndsWith(" ДА") || message.Content.EndsWith(" ДА?") || message.Content.EndsWith(" ДА!") ||
+                    message.Content.Equals("Da") || message.Content.Equals("Da!") || message.Content.Equals("da") || message.Content.Equals("Da?") || message.Content.Equals("da!") || message.Content.Equals("da?") || message.Content.Equals("DA") || message.Content.Equals("DA?") || message.Content.Equals("DA!") ||
+                    message.Content.EndsWith(" Da") || message.Content.EndsWith(" Da!") || message.Content.EndsWith(" Da?") || message.Content.EndsWith(" da!") || message.Content.EndsWith(" da") || message.Content.EndsWith(" da?") || message.Content.EndsWith(" DA") || message.Content.EndsWith(" DA?") || message.Content.EndsWith(" DA!"))
+                {
+                    await message.AddReactionAsync(p);
+                    await message.AddReactionAsync(i);
+                    await message.AddReactionAsync(z);
+                    await message.AddReactionAsync(d);
+                    await message.AddReactionAsync(a);
+                }
+                if (containsEmoteNikifor)
+                {
+                    await message.AddReactionAsync(b);
+                    await message.AddReactionAsync(l);
+                    await message.AddReactionAsync(y);
+                    await message.AddReactionAsync(a);
+                    await message.AddReactionAsync(t);
+                }
+            }
+            if (message.Author.Id == 660180184238129157)
+            {
+                await message.AddReactionAsync(emoteNikifor);
             }
         }
         public async Task ReactionAddAsync(Cacheable<IUserMessage, ulong> message, Cacheable<IMessageChannel, ulong> channel, SocketReaction reaction)

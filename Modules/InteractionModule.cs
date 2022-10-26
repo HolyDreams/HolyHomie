@@ -39,10 +39,10 @@ namespace HolyHomie.Modules
             {
                 пользователь = Context.User as SocketGuildUser;
             }
-            //if (пользователь.Id == 284953111603314688 || пользователь.Id == 1030169288482504796)
-            //{
-            //    await RespondAsync("Человек не хочет делиться своим аватаром.");
-            //}
+            if (пользователь.Id == 284953111603314688 || пользователь.Id == 1030169288482504796)
+            {
+                await RespondAsync("Человек не хочет делиться своим аватаром.");
+            }
             Random rnd = new Random();
             Color rndColor = new Color(new Color(rnd.Next(0, 255), rnd.Next(0, 255), rnd.Next(0, 255)));
 
@@ -67,7 +67,6 @@ namespace HolyHomie.Modules
                 .AddField("📷", "[Instagram](https://instagram.com/fritterustv)", true)
                 .AddField("🇧", "[VK](https://vk.com/fritterustv)", true)
                 .AddField("💦", "[OnlyFans](https://youtu.be/dQw4w9WgXcQ)", true)
-                //.WithImageUrl("https://sun7-9.userapi.com/impg/YhVefbI4jY0CkVlC3HdvPKuhsI6_EGNyWXBGdw/qO42jDuPNCA.jpg?size=1200x328&quality=96&sign=dee56239dd7658551813de83120d4e8a&type=album")
                 .Build();
 
             await RespondAsync(embed: embed);
