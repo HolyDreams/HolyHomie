@@ -1,4 +1,4 @@
-﻿  fritGuild: 270119143636860928
+﻿  fritGuild: "testGuildHere"
   prefix: '!'
   tokens:
-    discord: MTAxNTI2NTU5NTczMTc1OTIxNA.GhHdwH.48WYHjcJe6KqxSPP0OcsGviHTlak0pf2lNg54g
+    discord: "tokenHere"
