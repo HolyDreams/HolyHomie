@@ -16,17 +16,8 @@ namespace HolyHomie
     public class Program
     {
         private DiscordSocketClient _client;
-        private static Process lavalinkProc;
         static void Main(string[] args)
         {
-            CultureInfo.DefaultThreadCurrentCulture = CultureInfo.InvariantCulture;
-#if RUNPROCESS
-            lavalinkProc = new Process();
-            lavalinkProc.StartInfo.FileName = "java.exe";
-            lavalinkProc.StartInfo.Arguments = "-jar .\\LavaLink_Server\\Lavalink.jar";
-            //lavalinkProc.StartInfo.CreateNoWindow = true;
-            lavalinkProc.Start();
-#endif
             new Program().MainAsync().GetAwaiter().GetResult();
         }
 
@@ -43,16 +34,18 @@ namespace HolyHomie
                 .AddSingleton(config)
                 .AddSingleton(x => new DiscordSocketClient(new DiscordSocketConfig
                 {
-                    GatewayIntents = GatewayIntents.All,
+                    GatewayIntents = GatewayIntents.AllUnprivileged | GatewayIntents.MessageContent | GatewayIntents.GuildMembers,
                     //LogGatewayIntentWarnings = false,
                     AlwaysDownloadUsers = true,
-                    LogLevel = LogSeverity.Debug
+                    LogLevel = LogSeverity.Info
+
                 }))
                 .AddSingleton(x => new InteractionService(x.GetRequiredService<DiscordSocketClient>()))
                 .AddSingleton<InteractionHandler>()
+                .AddSingleton<LogHandler>()
                 .AddSingleton(x => new CommandService(new CommandServiceConfig
                 {
-                    LogLevel = LogSeverity.Debug,
+                    LogLevel = LogSeverity.Info,
                     DefaultRunMode = Discord.Commands.RunMode.Async
                 }))
                 .AddSingleton<ContentHandler>()
@@ -60,7 +53,7 @@ namespace HolyHomie
                 .AddLavaNode(x =>
                 {
                     x.SelfDeaf = false;
-                    x.LogSeverity = LogSeverity.Debug;
+                    x.LogSeverity = LogSeverity.Info;
                 })
                 )
                 .Build();
@@ -85,13 +78,16 @@ namespace HolyHomie
             var musicHandler = provider.GetRequiredService<MusicHandler>();
             await musicHandler.InitializeAsync();
 
+            var logHandler = provider.GetRequiredService<LogHandler>();
+            await logHandler.InitializeAsync();
+
             _client.Ready += async () =>
             {
 
                 if (IsDebug())
                     await commands.RegisterCommandsToGuildAsync(UInt64.Parse(config["fritGuild"]), true);
                 else
-                    await commands.RegisterCommandsGloballyAsync(true);
+                await commands.RegisterCommandsGloballyAsync(true);
             };
 
             await _client.LoginAsync(TokenType.Bot, config["tokens:discord"]);
@@ -103,7 +99,7 @@ namespace HolyHomie
         }
         private Task LogAsync(LogMessage logMessage)
         {
-            Console.WriteLine(logMessage.Message);
+            Console.WriteLine(DateTime.Now.ToString("[HH:mm:ss] ") + logMessage.Message);
             return Task.CompletedTask;
         }
         static bool IsDebug()

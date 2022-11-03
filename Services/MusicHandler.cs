@@ -6,7 +6,6 @@ using Discord;
 using System.Collections.Concurrent;
 using Victoria.EventArgs;
 using Victoria.Enums;
-using YamlDotNet.Core.Tokens;
 
 namespace HolyHomie.Services
 {
@@ -17,7 +16,6 @@ namespace HolyHomie.Services
         private readonly IServiceProvider _services;
         private readonly LavaNode _lavaNode;
         private readonly ConcurrentDictionary<ulong, CancellationTokenSource> _disconnectTokens;
-        public readonly HashSet<ulong> VoteQueue;
 
         public MusicHandler(DiscordSocketClient client, CommandService cmdService, IServiceProvider services, LavaNode lavaNode)
         {
@@ -26,7 +24,6 @@ namespace HolyHomie.Services
             _services = services;
             _lavaNode = lavaNode;
             _disconnectTokens = new ConcurrentDictionary<ulong, CancellationTokenSource>();
-            VoteQueue = new HashSet<ulong>();
         }
 
         public async Task InitializeAsync()
@@ -97,7 +94,7 @@ namespace HolyHomie.Services
                     .WithColor(new Color(69, 230, 255));
                 var embed = builder.Build();
                 await player.TextChannel.SendMessageAsync(embed: embed);
-                _ = InitiateDisconnectAsync(args.Player, TimeSpan.FromSeconds(60));
+                _ = InitiateDisconnectAsync(args.Player, TimeSpan.FromMinutes(5));
                 return;
             }
 

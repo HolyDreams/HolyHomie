@@ -19,6 +19,8 @@ namespace HolyHomie.Modules
         private static bool repeat = false;
         private readonly MusicHandler _musicHandler;
 
+        string timeNow = DateTime.Now.ToString("[HH:mm:ss]");
+
         public MusicModule(LavaNode lavaNode, MusicHandler musicHandler)
         {
             _lavaNode = lavaNode;
@@ -68,6 +70,8 @@ namespace HolyHomie.Modules
                 Console.WriteLine(exception.Message);
                 await ReplyAsync("Ой, что то пошло не так");
             }
+
+            Console.WriteLine($"{timeNow} {Context.User.Username} использовал команду 'join'");
         }
         [Command("Play"), Alias("p", ">", "add", "sr", "з", "ык", "фвв")]
         [Summary("Воспроизвести добавить в очередь песню.")]
@@ -100,10 +104,10 @@ namespace HolyHomie.Modules
                     searchResponse.Status == SearchStatus.NoMatches)
                 {
                     await ReplyAsync($"Не могу найти: `{searchQuery}`.");
+                    Console.WriteLine($"{timeNow} {Context.User.Username} пытался заказать песню командой 'play', но ничего не нашлось");
                     return;
                 }
 
-                //await _musicHandler.CancelDisconnectAsync(player);
                 if (player.PlayerState == PlayerState.Playing || player.PlayerState == PlayerState.Paused)
                 {
                     if (!string.IsNullOrWhiteSpace(searchResponse.Playlist.Name))
@@ -114,6 +118,7 @@ namespace HolyHomie.Modules
                         }
                         
                         await ReplyQuickEmbedAsync($"Загруженно в плейлист {searchResponse.Tracks.Count} песен");
+                        Console.WriteLine($"{timeNow} {Context.User.Username} добавил в плейлист {searchResponse.Tracks.Count} песен командой 'play'");
                     }
                     else
                     {
@@ -125,6 +130,7 @@ namespace HolyHomie.Modules
                             .WithThumbnailUrl(await track.FetchArtworkAsync());
                         var embed = builder.Build();
                         await ReplyAsync(embed: embed);
+                        Console.WriteLine($"{timeNow} {Context.User.Username} заказал песню {track.Title} командой 'play'");
                     }
                 }
                 else
@@ -152,6 +158,7 @@ namespace HolyHomie.Modules
                         }
 
                         await ReplyQuickEmbedAsync($"Добавлено '{searchResponse.Tracks.Count}' песен.");
+                        Console.WriteLine($"{timeNow} {Context.User.Username} заказал песню {track.Title} командой 'play'");
                     }
                     else
                     {
@@ -162,9 +169,11 @@ namespace HolyHomie.Modules
                                 .WithThumbnailUrl(await track.FetchArtworkAsync());
                         var embed = builder.Build();
                         await ReplyAsync(embed: embed);
+                        Console.WriteLine($"{timeNow} {Context.User.Username} заказал песню {track.Title} командой 'play'");
                     }
                 }
             }
+            
         }
 
         [Command("Skip"), Alias("s", ">>", "ы", "ылшз")]
@@ -173,22 +182,27 @@ namespace HolyHomie.Modules
         {
             if (!await IsConnectedUserInTheSameVoiceChannel() || !await IsConnectedBot()) return;
 
+            string[] urlAvatar = { "https://media.tenor.com/sv9DsEJe-AAAAAAC/vibe-cat.gif", "https://media.tenor.com/Jxbk24m0vV4AAAAd/vibe-rabbit.gif", "https://media.tenor.com/OxvEqKx7_ScAAAAC/jig-dance.gif", "https://media.tenor.com/TSLx3Kue8K4AAAAd/vibe-gif.gif", "https://media.tenor.com/w_5Q79dNCh8AAAAi/cat-vibe.gif", "https://media.tenor.com/j0qPYTg9a94AAAAi/duck-ducky.gif", "https://media.tenor.com/V1f62JgjcEsAAAAi/vibe-squirtle-tristan.gif", "https://media.tenor.com/-qh2j3-x9CcAAAAi/discord-animated-blob.gif" };
+            string gifImage = urlAvatar[new Random().Next(0, urlAvatar.Length - 1)];
+
             var player = _lavaNode.GetPlayer(Context.Guild);
             if (player.Queue.Count == 0)
             {
                 await player.StopAsync();
+                Console.WriteLine($"{timeNow} {Context.User.Username} скипнул {player.Track.Title} командой 'skip'");
                 return;
             }
 
             (var oldTrack, var currentTrack) = await player.SkipAsync();
-            await ReplyAsync(null, false,
-                 new EmbedBuilder()
-                 .WithColor(new Color(69, 230, 255))
-                 .WithAuthor($"Мы скипнули: {oldTrack.Title}")
-                 .WithTitle($"Чтобы поставить {currentTrack.Title}")
-                 .WithFields(new EmbedFieldBuilder())
-                 .WithFooter(footer => footer.Text = "Наслаждаемся!")
-                 .Build());
+            //await ReplyAsync(null, false,
+            //     new EmbedBuilder()
+            //     .WithColor(new Color(69, 230, 255))
+            //     .WithAuthor($"Мы скипнули: {oldTrack.Title}")
+            //     .WithTitle($"Чтобы поставить {currentTrack.Title}")
+            //     .WithThumbnailUrl(gifImage)
+            //     .Build());
+
+            Console.WriteLine($"{timeNow} {Context.User.Username} скипнул {oldTrack.Title} командой 'skip'");
         }
 
         [Command("Pause"), Alias("ll")]
@@ -202,11 +216,14 @@ namespace HolyHomie.Modules
                 player.PlayerState == Victoria.Enums.PlayerState.Stopped)
             {
                 await ReplyAsync("Музыка уже на паузе!");
+                Console.WriteLine($"{timeNow} {Context.User.Username} поставил музыку на паузу командой 'pause', но она уже была на паузе");
                 return;
             }
 
             await player.PauseAsync();
             await ReplyAsync("Музыка на паузе!");
+
+            Console.WriteLine($"{timeNow} {Context.User.Username} поставил музыку на паузу командой 'pause'");
         }
 
         [Command("Resume"), Alias("r", "unpause", "к")]
@@ -219,11 +236,13 @@ namespace HolyHomie.Modules
             if (player.PlayerState == Victoria.Enums.PlayerState.Playing)
             {
                 await ReplyAsync("Музыка уже играет!");
+                Console.WriteLine($"{timeNow} {Context.User.Username} продолжил играть музыку командой 'resume', но она уже играла");
                 return;
             }
 
             await player.ResumeAsync();
             await ReplyAsync("Музыка возоблена!");
+            Console.WriteLine($"{timeNow} {Context.User.Username} продолжил играть музыку командой 'resume'");
         }
 
         [Command("Stop"), Alias("o", "ыещз")]
@@ -236,11 +255,13 @@ namespace HolyHomie.Modules
             if (player.PlayerState != Victoria.Enums.PlayerState.Playing)
             {
                 await ReplyAsync("Музыка не играет!");
+                Console.WriteLine($"{timeNow} {Context.User.Username} остановил музыку командой 'stop', но музыка не играла");
                 return;
             }
 
             await player.StopAsync();
             await ReplyAsync("Остановили музыку!");
+            Console.WriteLine($"{timeNow} {Context.User.Username} остановил музыку командой 'stop'");
         }
 
         [Command("Leave"), Alias("l", "д")]
@@ -251,6 +272,7 @@ namespace HolyHomie.Modules
 
             var voiceState = Context.User as IVoiceState;
             await _lavaNode.LeaveAsync(voiceState?.VoiceChannel);
+            Console.WriteLine($"{timeNow} {Context.User.Username} выгнал бота командой 'leave'");
         }
 
         [Command("Clear"), Alias("c", "с")]
@@ -260,6 +282,7 @@ namespace HolyHomie.Modules
             if (!await IsConnectedUserInTheSameVoiceChannel() || !await IsConnectedBot()) return;
 
             _lavaNode.GetPlayer(Context.Guild).Queue.Clear();
+            Console.WriteLine($"{timeNow} {Context.User.Username} очистил плейлист командой 'clear'");
         }
 
         [Command("Repeat"), Alias("rp", "кз")]
@@ -269,9 +292,16 @@ namespace HolyHomie.Modules
             if (!await IsConnectedUserInTheSameVoiceChannel() || !await IsConnectedBot()) return;
 
             if (repeat = !repeat)
+            {
                 await ReplyAsync("Я начинаю повторять...", false, await CreateEmbed(_lavaNode.GetPlayer(Context.Guild).Track));
+                Console.WriteLine($"{timeNow} {Context.User.Username} включил повтор песни командой 'repeat'");
+            }
+
             else
+            {
                 await ReplyAsync("Я заканчиваю повторять...", false, await CreateEmbed(_lavaNode.GetPlayer(Context.Guild).Track));
+                Console.WriteLine($"{timeNow} {Context.User.Username} выключил повтор песни командой 'repeat'");
+            }
         }
 
         [Command("Shuffle"), Alias("shufle", "shuf", "random", "rnd", "ыргаду", "ырга", "кфтвщь", "ктв")]
@@ -281,6 +311,7 @@ namespace HolyHomie.Modules
             if (!await IsConnectedUserInTheSameVoiceChannel() || !await IsConnectedBot()) return;
 
             _lavaNode.GetPlayer(Context.Guild).Queue.Shuffle();
+            Console.WriteLine($"{timeNow} {Context.User.Username} перемешал плейлист командой 'shuffle'");
         }
 
         [Command("NowPlaying"), Alias("np", "now", "тз", "тщц")]
@@ -317,6 +348,8 @@ namespace HolyHomie.Modules
                 })
                 .WithFooter(footer => footer.Text = "Наслаждаемся!")
                 .Build());
+
+            Console.WriteLine($"{timeNow} {Context.User.Username} запросил название песни {track.Title} командой 'nowplaying'");
         }
 
         [Command("Search"), Alias("lf", "да", "ыуфкср")]
@@ -324,6 +357,8 @@ namespace HolyHomie.Modules
         public async Task SearchAsync([Remainder] string query)
         {
             if (!await IsConnectedUserInTheSameVoiceChannel() || !await IsConnectedBot()) return;
+            string[] urlAvatar = { "https://media.tenor.com/sv9DsEJe-AAAAAAC/vibe-cat.gif", "https://media.tenor.com/Jxbk24m0vV4AAAAd/vibe-rabbit.gif", "https://media.tenor.com/OxvEqKx7_ScAAAAC/jig-dance.gif", "https://media.tenor.com/TSLx3Kue8K4AAAAd/vibe-gif.gif", "https://media.tenor.com/w_5Q79dNCh8AAAAi/cat-vibe.gif", "https://media.tenor.com/j0qPYTg9a94AAAAi/duck-ducky.gif", "https://media.tenor.com/V1f62JgjcEsAAAAi/vibe-squirtle-tristan.gif", "https://media.tenor.com/-qh2j3-x9CcAAAAi/discord-animated-blob.gif" };
+            string gifImage = urlAvatar[new Random().Next(0, urlAvatar.Length - 1)];
 
             await _lavaNode.SearchAsync(SearchType.YouTube, query).ContinueWith(async (searchResponse) =>
             {
@@ -335,9 +370,11 @@ namespace HolyHomie.Modules
                 await ReplyAsync("Песни найдены на ютубе:", false, new EmbedBuilder()
                 .WithColor(new Color(69, 230, 255))
                 .WithDescription(tracks)
-                .WithFooter(footer => footer.Text = "Наслаждаемся!")
+                .WithThumbnailUrl(gifImage)
                 .Build());
             });
+
+            Console.WriteLine($"{timeNow} {Context.User.Username} искал результаты по запросу {query} командой 'search'");
         }
 
         [Command("Queue"), Alias("q", "й")]
@@ -364,6 +401,8 @@ namespace HolyHomie.Modules
                 .WithColor(new Color(69, 230, 255))
                 .WithThumbnailUrl(gifImage)
                 .Build());
+
+            Console.WriteLine($"{timeNow} {Context.User.Username} запросил плейлист командой 'queue'");
         }
 
         [Command("Help"), Alias("All", "h", "р")]
@@ -396,6 +435,8 @@ namespace HolyHomie.Modules
                 .WithDescription(all)
                 .WithFooter(footer => footer.Text = "Наслаждаемся!")
                 .Build());
+
+            Console.WriteLine($"{timeNow} {Context.User.Username} запросил список команд командой 'help'");
         }
 
         public async Task<bool> IsConnectedBot()
@@ -403,6 +444,7 @@ namespace HolyHomie.Modules
             if (!_lavaNode.HasPlayer(Context.Guild))
             {
                 await ReplyAsync("Я не в баре!");
+                Console.WriteLine($"{timeNow} {Context.User.Username} пытался отправить команды музыкальному боту, но он был не в баре");
                 return false;
             }
 
@@ -415,6 +457,7 @@ namespace HolyHomie.Modules
             if (voiceState?.VoiceChannel != _lavaNode.GetPlayer(Context.Guild).VoiceChannel || voiceState?.VoiceChannel == null || voiceState?.VoiceChannel.Id != 810298193945428039)
             {
                 await ReplyAsync("Ты не в баре!");
+                Console.WriteLine($"{timeNow} {Context.User.Username} пытался пригласить музыкального бота, но он был не в баре");
                 return false;
             }
 

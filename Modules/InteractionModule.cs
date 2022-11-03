@@ -7,6 +7,8 @@ namespace HolyHomie.Modules
 {
     public class InteractionModule : InteractionModuleBase<SocketInteractionContext>
     {
+        string timeNow = DateTime.Now.ToString("[HH:mm:ss]");
+
         [SlashCommand("roll", "Кидаете кубик")]
         public async Task HandleRollCommand(int min = 1, int max = 100)
         {
@@ -20,6 +22,7 @@ namespace HolyHomie.Modules
             }
             Random rnd = new Random();
             await RespondAsync(Convert.ToString(rnd.Next(min, max + 1)));
+            Console.WriteLine($"{timeNow} {Context.User.Username} использовал команду '/roll'");
         }
 
         [SlashCommand("flip", "Кидаете монетку")]
@@ -30,6 +33,8 @@ namespace HolyHomie.Modules
             if (rnd.Next(1, 100) < 51)
                 result = "Решка!";
             await RespondAsync(result);
+
+            Console.WriteLine($"{timeNow} {Context.User.Username} использовал команду '/flip'");
 
         }
         [SlashCommand("avatar", "Показывает аватар пользователя")]
@@ -54,6 +59,7 @@ namespace HolyHomie.Modules
                 .Build();
 
             await RespondAsync(embed: embed);
+            Console.WriteLine($"{timeNow} {Context.User.Username} запросил аватар {пользователь.Username} командой '/avatar'");
         }
         [SlashCommand("socials", "Ссылки всех социальных сетей")]
         public async Task SocialAsync()
@@ -70,6 +76,7 @@ namespace HolyHomie.Modules
                 .Build();
 
             await RespondAsync(embed: embed);
+            Console.WriteLine($"{timeNow} {Context.User.Username} использовал команду '/socials'");
         }
     }
 }
