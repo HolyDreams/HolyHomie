@@ -78,5 +78,20 @@ namespace HolyHomie.Modules
             await RespondAsync(embed: embed);
             Console.WriteLine($"{timeNow} {Context.User.Username} использовал команду '/socials'");
         }
+        [SlashCommand("casino", "Испытай свою удачу")]
+        public async Task CasinoAsync()
+        {
+            string[] casinoRoll = new string[5];
+            casinoRoll[0] = ":animeGasm:";
+            casinoRoll[1] = ":AYAYA:";
+            casinoRoll[2] = ":eggplant:";
+            casinoRoll[3] = ":Spicy:";
+            casinoRoll[4] = ":PigChamp:";
+            Random rnd = new Random();
+            var res1 = casinoRoll[rnd.Next(0, casinoRoll.Length - 1)];
+            var res2 = casinoRoll[rnd.Next(0, casinoRoll.Length - 1)];
+            var res3 = casinoRoll[rnd.Next(0, casinoRoll.Length - 1)];
+            await RespondAsync(Convert.ToString($"{res1} {res2} {res3}"));
+        }
     }
 }
