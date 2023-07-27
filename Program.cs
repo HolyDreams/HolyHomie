@@ -15,10 +15,22 @@ namespace HolyHomie
 {
     public class Program
     {
+        public static CancellationTokenSource cts = new CancellationTokenSource();
         private DiscordSocketClient _client;
+
         static void Main(string[] args)
         {
+            var _checkBGRank = new CheckBGRank();
+            _checkBGRank.Start();
             new Program().MainAsync().GetAwaiter().GetResult();
+            AppDomain.CurrentDomain.ProcessExit += CurrentDomain_ProcessExit;
+        }
+
+        private static void CurrentDomain_ProcessExit(object? sender, EventArgs e)
+        {
+            cts.Cancel();
+            Thread.Sleep(50);
+            cts.Dispose();
         }
 
         public async Task MainAsync()
@@ -49,12 +61,6 @@ namespace HolyHomie
                     DefaultRunMode = Discord.Commands.RunMode.Async
                 }))
                 .AddSingleton<ContentHandler>()
-                .AddSingleton<MusicHandler>()
-                .AddLavaNode(x =>
-                {
-                    x.SelfDeaf = false;
-                    x.LogSeverity = LogSeverity.Info;
-                })
                 )
                 .Build();
 
@@ -66,17 +72,14 @@ namespace HolyHomie
             using IServiceScope serviceScope = host.Services.CreateScope();
             IServiceProvider provider = serviceScope.ServiceProvider;
 
+            await provider.GetRequiredService<InteractionHandler>().InitializeAsync();
+
             var commands = provider.GetRequiredService<InteractionService>();
             _client = provider.GetRequiredService<DiscordSocketClient>();
             var config = provider.GetRequiredService<IConfigurationRoot>();
 
-            await provider.GetRequiredService<InteractionHandler>().InitializeAsync();
-
             var contentCommands = provider.GetRequiredService<ContentHandler>();
             await contentCommands.InitializeAsync();
-
-            var musicHandler = provider.GetRequiredService<MusicHandler>();
-            await musicHandler.InitializeAsync();
 
             var logHandler = provider.GetRequiredService<LogHandler>();
             await logHandler.InitializeAsync();
@@ -92,7 +95,7 @@ namespace HolyHomie
 
             await _client.LoginAsync(TokenType.Bot, config["tokens:discord"]);
             await _client.StartAsync();
-            await _client.SetGameAsync("Воспоминания о FiTADiNE");
+            await _client.SetGameAsync("Wacraft 3");
             _client.Log += LogAsync;
 
             await Task.Delay(-1);

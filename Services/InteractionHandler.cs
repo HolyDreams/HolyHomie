@@ -22,9 +22,7 @@ namespace HolyHomie.Services
         {
             await _commands.AddModulesAsync(Assembly.GetEntryAssembly(), _services);
 
-
             _client.InteractionCreated += HandleInteration;
-
         }
 
         private async Task HandleInteration(SocketInteraction arg)

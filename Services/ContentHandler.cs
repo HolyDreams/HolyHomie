@@ -8,6 +8,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using YamlDotNet.Serialization;
+using static System.Collections.Specialized.BitVector32;
+using System.Data;
 
 namespace HolyHomie.Services
 {
@@ -27,7 +29,7 @@ namespace HolyHomie.Services
         SocketRole roleTabletop;
         SocketRole roleCSGO;
         SocketRole roleDota;
-        SocketRole roleWoT;
+        SocketRole roleDurak;
         SocketRole roleClown;
         SocketRole roleCinema;
         SocketRole roleMale;
@@ -45,7 +47,7 @@ namespace HolyHomie.Services
         Emote emoteRoleTabletop;
         Emote emoteRoleCSGO;
         Emote emoteRoleDota;
-        Emote emoteRoleWoT;
+        Emote emoteRoleDurak;
         Emote emoteRoleCinema;
         Emote emoteRoleAmong;
         //Emote emoteRoleClown;
@@ -78,7 +80,7 @@ namespace HolyHomie.Services
             roleTabletop = _main.GetRole(837224578870280233);
             roleCSGO = _main.GetRole(933775508380983326);
             roleDota = _main.GetRole(1013818161059078274);
-            roleWoT = _main.GetRole(1013818426235555881);
+            roleDurak = _main.GetRole(1013818426235555881);
             roleClown = _main.GetRole(1012073198566785124);
             roleCinema = _main.GetRole(912408613446893619);
             roleMale = _main.GetRole(837369024488013884);
@@ -98,11 +100,8 @@ namespace HolyHomie.Services
             emoteRoleTabletop = Emote.Parse("<:roleTabletop:1036055848822251561>");
             emoteRoleCSGO = Emote.Parse("<:roleCSGO:1036055844833460324>");
             emoteRoleDota = Emote.Parse("<:roleDota:1036055851871510599>");
-            emoteRoleWoT = Emote.Parse("<:roleWoT:1036055846351810570>");
+            emoteRoleDurak = Emote.Parse("<:Nasrano:1129503440301731972>");
             //emoteRoleClown = Emote.Parse("<:fritClown:978002471886663740>")
-
-
-
 
             var messages = await channelRole.GetMessagesAsync(1).FlattenAsync();
             rolesMessage = messages.First().Id;
@@ -115,7 +114,7 @@ namespace HolyHomie.Services
             //await messages.First().AddReactionAsync(emoteRoleHS);
             //await messages.First().AddReactionAsync(emoteRoleSiGame);
             //await messages.First().AddReactionAsync(emoteRoleTabletop);
-            //await messages.First().AddReactionAsync(emoteRoleWoT);
+            //await messages.First().AddReactionAsync(emoteRoleDurak);
             //await messages.First().AddReactionAsync(emoteRoleCSGO);
             //await messages.First().AddReactionAsync(emoteRoleDota);
             //await messages.First().AddReactionAsync(emoteRoleAmong);
@@ -134,6 +133,7 @@ namespace HolyHomie.Services
             var emoteHSHi = Emote.Parse("<:hshi:706589400401707018>");
             var emoteVibeHi = Emote.Parse("<:vibeHi:1031870617428963368>");
             var emoteNikifor = Emote.Parse("<:Nikifor:1031674334277816370>");
+            var emoteDurak = Emote.Parse("<:Nasrano:1129503440301731972>");
             var p = new Emoji("🇵");
             var i = new Emoji("🇮");
             var z = new Emoji("🇿");
@@ -144,35 +144,20 @@ namespace HolyHomie.Services
             var y = new Emoji("🇾");
             var t = new Emoji("🇹");
             string content = message.Content;
-            string[] filtersEmoteMasterCat = { ":MasterCAT:" };
-            bool containsEmoteMasterCat = filtersEmoteMasterCat.Any(x => content.Split(" ").Any(y => y.Contains(x)));
-            string[] filtersEmoteHSHi = { ":hshi:" };
-            bool containsEmoteHSHi = filtersEmoteHSHi.Any(x => content.Split(" ").Any(y => y.Contains(x)));
-            string[] filtersVibeHi = { ":vibeHi:" };
-            bool containsEmoteVibeHi = filtersVibeHi.Any(x => content.Split(" ").Any(y => y.Contains(x)));
-            string[] filtersMirakeDance = { ":mirake1Dance:" };
-            bool containsEmoteMirakeDance = filtersMirakeDance.Any(x => content.Split(" ").Any(y => y.Contains(x)));
-            string[] filtersNikifor = { ":Nikifor:" };
-            bool containsEmoteNikifor = filtersNikifor.Any(x => content.Split(" ").Any(y => y.Contains(x)));
+            string[] filtersVibeHi = { ":vibeHi:", ":mirake1Dance:" };
 
-            if (containsEmoteMasterCat)
-            {
+            if (content.Split(" ").Any(a => a.Contains(":MasterCAT:")))
                 await message.AddReactionAsync(emoteMasterCat);
-            }
-            if (containsEmoteHSHi)
-            {
+            if (content.Split(" ").Any(a => a.Contains(":hshi:")))
                 await message.AddReactionAsync(emoteHSHi);
-            }
-            if (containsEmoteVibeHi || containsEmoteMirakeDance)
-            {
+            if (filtersVibeHi.Any(q => content.Split(" ").Any(a => a.Contains(q))))
                 await message.AddReactionAsync(emoteVibeHi);
-            }
+            if (content.Split(" ").Any(a => a.Contains(":Nasrano:")))
+                await message.AddReactionAsync(emoteDurak);
             if (message.Author.Id != 284953111603314688 || message.Author.Id != 1030169288482504796)
             {
-                if (message.Content.Equals("Да") || message.Content.Equals("Да!") || message.Content.Equals("да") || message.Content.Equals("Да?") || message.Content.Equals("да!") || message.Content.Equals("да?") || message.Content.Equals("ДА") || message.Content.Equals("ДА?") || message.Content.Equals("ДА!") ||
-                    message.Content.EndsWith(" Да") || message.Content.EndsWith(" Да!") || message.Content.EndsWith(" Да?") || message.Content.EndsWith(" да!") || message.Content.EndsWith(" да") || message.Content.EndsWith(" да?") || message.Content.EndsWith(" ДА") || message.Content.EndsWith(" ДА?") || message.Content.EndsWith(" ДА!") ||
-                    message.Content.Equals("Da") || message.Content.Equals("Da!") || message.Content.Equals("da") || message.Content.Equals("Da?") || message.Content.Equals("da!") || message.Content.Equals("da?") || message.Content.Equals("DA") || message.Content.Equals("DA?") || message.Content.Equals("DA!") ||
-                    message.Content.EndsWith(" Da") || message.Content.EndsWith(" Da!") || message.Content.EndsWith(" Da?") || message.Content.EndsWith(" da!") || message.Content.EndsWith(" da") || message.Content.EndsWith(" da?") || message.Content.EndsWith(" DA") || message.Content.EndsWith(" DA?") || message.Content.EndsWith(" DA!"))
+                var messageContent = message.Content.ToLower().Trim('!', '.', ',', '?');
+                if (messageContent.Trim(' ').Equals("да") || messageContent.Trim(' ').Equals("da") || messageContent.EndsWith(" да") || messageContent.EndsWith(" da"))
                 {
                     await message.AddReactionAsync(p);
                     await message.AddReactionAsync(i);
@@ -180,7 +165,7 @@ namespace HolyHomie.Services
                     await message.AddReactionAsync(d);
                     await message.AddReactionAsync(a);
                 }
-                if (containsEmoteNikifor)
+                if (content.Split(" ").Any(a => a.Contains(":Nikifor:")))
                 {
                     await message.AddReactionAsync(b);
                     await message.AddReactionAsync(l);
@@ -200,141 +185,43 @@ namespace HolyHomie.Services
             if (reaction.UserId == _client.CurrentUser.Id) return;
             if (message.Id == rolesMessage)
             {
+                SocketRole role = null;
                 if (reaction.Emote.Name == emoteRoleAnyGame.Name)
-                {
-                    var role = roleAnyGame;
-                    await contextMessage.RemoveReactionAsync(reaction.Emote, reaction.UserId);
-                    if (!_main.GetUser(reaction.UserId).Roles.Contains(role))
-                        await _main.GetUser(reaction.UserId).AddRoleAsync(role);
-                    if (_main.GetUser(reaction.UserId).Roles.Contains(role))
-                        await _main.GetUser(reaction.UserId).RemoveRoleAsync(role); 
-                }
-                if (reaction.Emote.Name == emoteRoleWc3.Name) 
-                {
-                    var role = roleWc3;
-                    await contextMessage.RemoveReactionAsync(reaction.Emote, reaction.UserId);
-                    if (!_main.GetUser(reaction.UserId).Roles.Contains(role))
-                        await _main.GetUser(reaction.UserId).AddRoleAsync(role);
-                    if (_main.GetUser(reaction.UserId).Roles.Contains(role))
-                        await _main.GetUser(reaction.UserId).RemoveRoleAsync(role);
-                }
-                if (reaction.Emote.Name == emoteRoleHS.Name) 
-                {
-                    var role = roleHS;
-                    await contextMessage.RemoveReactionAsync(reaction.Emote, reaction.UserId);
-                    if (!_main.GetUser(reaction.UserId).Roles.Contains(role))
-                        await _main.GetUser(reaction.UserId).AddRoleAsync(role);
-                    if (_main.GetUser(reaction.UserId).Roles.Contains(role))
-                        await _main.GetUser(reaction.UserId).RemoveRoleAsync(role);
-                }
-                if (reaction.Emote.Name == emoteRoleSiGame.Name) 
-                {
-                    var role = roleSiGame;
-                    await contextMessage.RemoveReactionAsync(reaction.Emote, reaction.UserId);
-                    if (!_main.GetUser(reaction.UserId).Roles.Contains(role))
-                        await _main.GetUser(reaction.UserId).AddRoleAsync(role);
-                    if (_main.GetUser(reaction.UserId).Roles.Contains(role))
-                        await _main.GetUser(reaction.UserId).RemoveRoleAsync(role);
-                }
-                if (reaction.Emote.Name == emoteRoleTabletop.Name) 
-                {
-                    var role = roleTabletop;
-                    await contextMessage.RemoveReactionAsync(reaction.Emote, reaction.UserId);
-                    if (!_main.GetUser(reaction.UserId).Roles.Contains(role))
-                        await _main.GetUser(reaction.UserId).AddRoleAsync(role);
-                    if (_main.GetUser(reaction.UserId).Roles.Contains(role))
-                        await _main.GetUser(reaction.UserId).RemoveRoleAsync(role);
-                }
-                if (reaction.Emote.Name ==  emoteRoleCSGO.Name) 
-                {
-                    var role = roleCSGO;
-                    await contextMessage.RemoveReactionAsync(reaction.Emote, reaction.UserId);
-                    if (!_main.GetUser(reaction.UserId).Roles.Contains(role))
-                        await _main.GetUser(reaction.UserId).AddRoleAsync(role);
-                    if (_main.GetUser(reaction.UserId).Roles.Contains(role))
-                        await _main.GetUser(reaction.UserId).RemoveRoleAsync(role);
-                }
-                if (reaction.Emote.Name == emoteRoleDota.Name)
-                {
-                    var role = roleDota;
-                    await contextMessage.RemoveReactionAsync(reaction.Emote, reaction.UserId);
-                    if (!_main.GetUser(reaction.UserId).Roles.Contains(role))
-                        await _main.GetUser(reaction.UserId).AddRoleAsync(role);
-                    if (_main.GetUser(reaction.UserId).Roles.Contains(role))
-                        await _main.GetUser(reaction.UserId).RemoveRoleAsync(role);
-                }
-                if (reaction.Emote.Name == emoteRoleWoT.Name) 
-                {
-                    var role = roleWoT;
-                    await contextMessage.RemoveReactionAsync(reaction.Emote, reaction.UserId);
-                    if (!_main.GetUser(reaction.UserId).Roles.Contains(role))
-                        await _main.GetUser(reaction.UserId).AddRoleAsync(role);
-                    if (_main.GetUser(reaction.UserId).Roles.Contains(role))
-                        await _main.GetUser(reaction.UserId).RemoveRoleAsync(role);
-                }
-                if (reaction.Emote.Name == "\U0001f921") 
-                {
-                    var role = roleClown;
-                    await contextMessage.RemoveReactionAsync(reaction.Emote, reaction.UserId);
-                    if (!_main.GetUser(reaction.UserId).Roles.Contains(role))
-                        await _main.GetUser(reaction.UserId).AddRoleAsync(role);
-                    if (_main.GetUser(reaction.UserId).Roles.Contains(role))
-                        await _main.GetUser(reaction.UserId).RemoveRoleAsync(role);
-                }
-                if (reaction.Emote.Name == emoteRoleCinema.Name) 
-                {
-                    var role = roleCinema;
-                    await contextMessage.RemoveReactionAsync(reaction.Emote, reaction.UserId);
-                    if (!_main.GetUser(reaction.UserId).Roles.Contains(role))
-                        await _main.GetUser(reaction.UserId).AddRoleAsync(role);
-                    if (_main.GetUser(reaction.UserId).Roles.Contains(role))
-                        await _main.GetUser(reaction.UserId).RemoveRoleAsync(role);
-                }
-                if (reaction.Emote.Name == "🚹") 
-                {
-                    var role = roleMale;
-                    await contextMessage.RemoveReactionAsync(reaction.Emote, reaction.UserId);
-                    if (!_main.GetUser(reaction.UserId).Roles.Contains(role))
-                        await _main.GetUser(reaction.UserId).AddRoleAsync(role);
-                    if (_main.GetUser(reaction.UserId).Roles.Contains(role))
-                        await _main.GetUser(reaction.UserId).RemoveRoleAsync(role);
-                }
-                if (reaction.Emote.Name == "🚺") 
-                {
-                    var role = roleWoman;
-                    await contextMessage.RemoveReactionAsync(reaction.Emote, reaction.UserId);
-                    if (!_main.GetUser(reaction.UserId).Roles.Contains(role))
-                        await _main.GetUser(reaction.UserId).AddRoleAsync(role);
-                    if (_main.GetUser(reaction.UserId).Roles.Contains(role))
-                        await _main.GetUser(reaction.UserId).RemoveRoleAsync(role);
-                }
-                if (reaction.Emote.Name == "⚧") 
-                {
-                    var role = roleTrans;
-                    await contextMessage.RemoveReactionAsync(reaction.Emote, reaction.UserId);
-                    if (!_main.GetUser(reaction.UserId).Roles.Contains(role))
-                        await _main.GetUser(reaction.UserId).AddRoleAsync(role);
-                    if (_main.GetUser(reaction.UserId).Roles.Contains(role))
-                        await _main.GetUser(reaction.UserId).RemoveRoleAsync(role);
-                }
-                if (reaction.Emote.Name == "🚁") 
-                {
-                    var role = roleHelicopter;
-                    await contextMessage.RemoveReactionAsync(reaction.Emote, reaction.UserId);
-                    if (!_main.GetUser(reaction.UserId).Roles.Contains(role))
-                        await _main.GetUser(reaction.UserId).AddRoleAsync(role);
-                    if (_main.GetUser(reaction.UserId).Roles.Contains(role))
-                        await _main.GetUser(reaction.UserId).RemoveRoleAsync(role);
-                }
-                if (reaction.Emote.Name == emoteRoleAmong.Name) 
-                {
-                    var role = roleAmong;
-                    await contextMessage.RemoveReactionAsync(reaction.Emote, reaction.UserId);
-                    if (!_main.GetUser(reaction.UserId).Roles.Contains(role))
-                        await _main.GetUser(reaction.UserId).AddRoleAsync(role);
-                    if (_main.GetUser(reaction.UserId).Roles.Contains(role))
-                        await _main.GetUser(reaction.UserId).RemoveRoleAsync(role);
-                }
+                    role = roleAnyGame;
+                else if (reaction.Emote.Name == emoteRoleWc3.Name)
+                    role = roleWc3;
+                else if (reaction.Emote.Name == emoteRoleHS.Name)
+                    role = roleHS;
+                else if (reaction.Emote.Name == emoteRoleSiGame.Name)
+                    role = roleSiGame;
+                else if (reaction.Emote.Name == emoteRoleTabletop.Name)
+                    role = roleTabletop;
+                else if (reaction.Emote.Name == emoteRoleCSGO.Name)
+                    role = roleCSGO;
+                else if (reaction.Emote.Name == emoteRoleDota.Name)
+                    role = roleDota;
+                else if (reaction.Emote.Name == emoteRoleDurak.Name)
+                    role = roleDurak;
+                else if (reaction.Emote.Name == "\U0001f921")
+                    role = roleClown;
+                else if (reaction.Emote.Name == emoteRoleCinema.Name)
+                    role = roleCinema;
+                else if (reaction.Emote.Name == "🚹")
+                    role = roleMale;
+                else if (reaction.Emote.Name == "🚺")
+                    role = roleWoman;
+                else if (reaction.Emote.Name == "⚧")
+                    role = roleTrans;
+                else if (reaction.Emote.Name == "🚁")
+                    role = roleHelicopter;
+                else if (reaction.Emote.Name == emoteRoleAmong.Name)
+                    role = roleAmong;
+
+                await contextMessage.RemoveReactionAsync(reaction.Emote, reaction.UserId);
+                if (!_main.GetUser(reaction.UserId).Roles.Contains(role))
+                    await _main.GetUser(reaction.UserId).AddRoleAsync(role);
+                else
+                    await _main.GetUser(reaction.UserId).RemoveRoleAsync(role);
             }
         }
 

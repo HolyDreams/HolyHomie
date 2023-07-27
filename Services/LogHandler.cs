@@ -17,30 +17,26 @@ namespace HolyHomie.Services
         private readonly DiscordSocketClient _client;
         private readonly CommandService _commands;
         private readonly IConfigurationRoot _config;
-        private readonly LavaNode _lavaNode;
 
         SocketGuild _guild;
 
-        public LogHandler(DiscordSocketClient client, CommandService commands, IConfigurationRoot config, LavaNode lavaNode)
+        public LogHandler(DiscordSocketClient client, CommandService commands, IConfigurationRoot config)
         {
             _client = client;
             _commands = commands;
             _config = config;
-            _lavaNode = lavaNode;
         }
 
         public async Task InitializeAsync()
         {
             _client.Ready += ReadyAsync;
             _client.MessageReceived += MessageRecivedAsync;
-            //_client.MessageDeleted += MessageDeleteAsync;
             _client.UserBanned += BanAsync;
             _client.UserUnbanned += UnbanAsync;
             _client.ReactionAdded += ReactionAddAsync;
             _client.ReactionRemoved += ReactionRemoveAsync;
             _client.UserJoined += NewUserJoiAsync;
             _client.UserVoiceStateUpdated += VoiceActiveAsync;
-            _lavaNode.OnTrackStarted += TrackStartedAsync;
         }
 
         public Task ReadyAsync()
@@ -58,12 +54,6 @@ namespace HolyHomie.Services
             var channel = message.Channel.Name;
             Console.WriteLine($"{DateTime.Now.ToString("[HH:mm:ss]")} {author} написал в {channel}: {message.Content}");
         }
-        //public async Task MessageDeleteAsync(Cacheable<IMessage, ulong> message, Cacheable<IMessageChannel, ulong> channel)
-        //{
-        //    var contextMessage = await message.GetOrDownloadAsync();
-        //    var contextChannel = await channel.GetOrDownloadAsync();
-        //    Console.WriteLine($"{timeNow} В канале {contextMessage.Channel.Name} {contextMessage.Author.Username} удалил сообщение.");
-        //}
 
         public async Task BanAsync(SocketUser user, SocketGuild guild)
         {
@@ -99,10 +89,6 @@ namespace HolyHomie.Services
 
             Console.WriteLine($"{DateTime.Now.ToString("[HH:mm:ss]")} {author} зашёл на сервер.");
         }
-        public async Task TrackStartedAsync(TrackStartEventArgs arg)
-        {
-            Console.WriteLine($"{DateTime.Now.ToString("[HH:mm:ss]")} Сейчас играет {arg.Track.Title}");
-        }
         public async Task VoiceActiveAsync(SocketUser user, SocketVoiceState oldState, SocketVoiceState newState)
         {
             if (user.IsBot) return;
@@ -121,10 +107,6 @@ namespace HolyHomie.Services
                 Console.WriteLine($"{DateTime.Now.ToString("[HH:mm:ss]")} {user} вышел из {oldState.VoiceChannel.Name}.");
             if (newState.VoiceChannel != null)
                 Console.WriteLine($"{DateTime.Now.ToString("[HH:mm:ss]")} {user} зашёл на {newState.VoiceChannel.Name}.");
-            //if (oldState.IsSelfMuted == false)
-            //    Console.WriteLine($"{timeNow} {user} выключил микрофон.");
-            //if (oldState.IsSelfMuted == false)
-            //    Console.WriteLine($"{timeNow} {user} включил микрофон.");
         }
     }
 }
