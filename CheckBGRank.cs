@@ -32,8 +32,6 @@ namespace HolyHomie
             {
                 if (DateTime.Now.Minute % 10 == 0 || DateTime.Now.Minute == 0)
                 {
-                    bgRankListEU.Clear();
-                    needCheckRank = true;
                     int page = 1;
                     while (bgRankListEU.Count < 1000)
                     {
@@ -49,45 +47,21 @@ namespace HolyHomie
                         }
                         page++;
                     }
-                    if (bgRankListEUold.Count == 0)
-                        bgRankListEUold.AddRange(bgRankListEU);
 
-                    var addList = (from a in bgRankListEU
-                                   join b in bgRankListEUold on a.accountid equals b.accountid
-                                   where a.rank - b.rank <= 15 &&
-                                         a.rank - b.rank > 15
-                                   select new
-                                   {
-                                       Name = a.accountid,
-                                       Rank = a.rank,
-                                       Rating = a.rating,
-                                       Difference = a.rating - b.rating
-                                   }).ToList();
-                    for (int i = 0; i < addList.Count; i++)
+                    for (int i = 0; i < bgRankListEU.Count; i++)
                     {
-                        var sqlQuery = $@"UPDATE HSBGeu
-                                          SET Name = '{addList[i].Name}',
-                                              Rating = '{addList[i].Rating}'
-                                          WHERE Rank = '{addList[i].Rank}';{(addList[i].Difference == 0 ? "" : $@"
+                        var sqlQuery = $@"INSERT INTO HSBGdaily
+                                          VALUES ('{bgRankListEU[i].accountid}',
+                                                  (SELECT Rating - {bgRankListEU[i].rating}
+                                                   FROM HSBGeu
+                                                   WHERE Name = '{bgRankListEU[i].accountid}' AND
+                                                         (Rank >= {bgRankListEU[i].rank - 15} OR
+                                                          Rank <= {bgRankListEU[i].rank + 15});
 
-                                          INSERT INTO HSBGdaily (Name,Rating)
-                                          VALUES ('{addList[i].Name}',
-                                                  {addList[i].Difference});")}";
-                        SQLRequest.SQLite(sqlQuery);
-                    }
-                    var newList = (from a in bgRankListEU
-                                   join b in bgRankListEUold on a.accountid equals b.accountid
-                                   into b_d
-                                   from b in b_d.DefaultIfEmpty()
-
-                                   where b?.accountid == null
-                                   select a).ToList();
-                    for (int i = 0; i < addList.Count; i++)
-                    {
-                        var sqlQuery = $@"UPDATE HSBGeu
-                                          SET Name = '{addList[i].Name}',
-                                              Rating = {addList[i].Rating}
-                                          WHERE Rank = {addList[i].Rank}";
+                                          UPDATE HSBGeu
+                                          SET Name = '{bgRankListEU[i].accountid}',
+                                              Rating = {bgRankListEU[i].rating}
+                                          WHERE Rank = {bgRankListEU[i].rank};";
                         SQLRequest.SQLite(sqlQuery);
                     }
                 }
