@@ -11,6 +11,7 @@ using System.Text.Json;
 using System.Net;
 using Newtonsoft.Json.Linq;
 using System.Data;
+using HolyHomie.Services;
 
 namespace HolyHomie
 {
@@ -48,6 +49,7 @@ namespace HolyHomie
                         page++;
                     }
 
+                    LogHandler.WriteLogMessage("BGRank EU checked").Start();
                     for (int i = 0; i < bgRankListEU.Count; i++)
                     {
                         var sqlQuery = $@"INSERT INTO HSBGdaily
@@ -56,7 +58,7 @@ namespace HolyHomie
                                                    FROM HSBGeu
                                                    WHERE Name = '{bgRankListEU[i].accountid}' AND
                                                          (Rank >= {bgRankListEU[i].rank - 15} OR
-                                                          Rank <= {bgRankListEU[i].rank + 15});
+                                                          Rank <= {bgRankListEU[i].rank + 15})));
 
                                           UPDATE HSBGeu
                                           SET Name = '{bgRankListEU[i].accountid}',
@@ -84,7 +86,7 @@ namespace HolyHomie
                         page++;
                     }
 
-
+                    LogHandler.WriteLogMessage("BGRank US checked").Start();
                     for (int i = 0; i < bgRankList.Count; i++)
                     {
                         var sqlQuery = $@"UPDATE HSBGus

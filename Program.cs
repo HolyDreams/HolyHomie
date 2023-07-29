@@ -100,7 +100,7 @@ namespace HolyHomie
 
             await Task.Delay(-1);
         }
-        private Task LogAsync(LogMessage logMessage)
+        public static Task LogAsync(LogMessage logMessage)
         {
             Console.WriteLine(DateTime.Now.ToString("[HH:mm:ss] ") + logMessage.Message);
             return Task.CompletedTask;

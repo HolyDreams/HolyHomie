@@ -45,6 +45,10 @@ namespace HolyHomie.Services
             return Task.CompletedTask;
         }
 
+        public static async Task WriteLogMessage(string message)
+        {
+            Console.WriteLine(DateTime.Now.ToString("[HH:mm:ss]") + " " + message);
+        }
         public async Task MessageRecivedAsync(SocketMessage message)
         {
             if (message is null) return;
