@@ -10,6 +10,10 @@ using HolyHomie.Services;
 using Victoria;
 using System.Globalization;
 using System.Diagnostics;
+using HolyHomie.Handlers;
+using Victoria.Node;
+using Victoria.Player;
+using HolyHomie.Modules;
 
 namespace HolyHomie
 {
@@ -17,11 +21,10 @@ namespace HolyHomie
     {
         public static CancellationTokenSource cts = new CancellationTokenSource();
         private DiscordSocketClient _client;
+        private LavaNode _lavaNode;
 
         static void Main(string[] args)
         {
-            var _checkBGRank = new CheckBGRank();
-            _checkBGRank.Start();
             new Program().MainAsync().GetAwaiter().GetResult();
             AppDomain.CurrentDomain.ProcessExit += CurrentDomain_ProcessExit;
         }
@@ -31,10 +34,16 @@ namespace HolyHomie
             cts.Cancel();
             Thread.Sleep(50);
             cts.Dispose();
+
+            var processList = Process.GetProcessesByName("java");
+            if (processList.Length > 0)
+                processList[0].Kill();
         }
 
         public async Task MainAsync()
         {
+            await StartLavalinkAsync();
+
             var config = new ConfigurationBuilder()
                 .SetBasePath(AppContext.BaseDirectory)
                 .AddYamlFile("cfg.yml")
@@ -49,12 +58,15 @@ namespace HolyHomie
                     GatewayIntents = GatewayIntents.AllUnprivileged | GatewayIntents.MessageContent | GatewayIntents.GuildMembers,
                     //LogGatewayIntentWarnings = false,
                     AlwaysDownloadUsers = true,
-                    LogLevel = LogSeverity.Info
+                    LogLevel = LogSeverity.Info,
+                    UseInteractionSnowflakeDate = false
 
                 }))
                 .AddSingleton(x => new InteractionService(x.GetRequiredService<DiscordSocketClient>()))
                 .AddSingleton<InteractionHandler>()
                 .AddSingleton<LogHandler>()
+                .AddLavaNode(x => x.SelfDeaf = false)
+                .AddSingleton<LavalinkAudio>()
                 .AddSingleton(x => new CommandService(new CommandServiceConfig
                 {
                     LogLevel = LogSeverity.Info,
@@ -77,6 +89,7 @@ namespace HolyHomie
             var commands = provider.GetRequiredService<InteractionService>();
             _client = provider.GetRequiredService<DiscordSocketClient>();
             var config = provider.GetRequiredService<IConfigurationRoot>();
+            _lavaNode = provider.GetRequiredService<LavaNode>();
 
             var contentCommands = provider.GetRequiredService<ContentHandler>();
             await contentCommands.InitializeAsync();
@@ -84,19 +97,36 @@ namespace HolyHomie
             var logHandler = provider.GetRequiredService<LogHandler>();
             await logHandler.InitializeAsync();
 
-            _client.Ready += async () =>
-            {
-
-                if (IsDebug())
-                    await commands.RegisterCommandsToGuildAsync(UInt64.Parse(config["fritGuild"]), true);
-                else
-                await commands.RegisterCommandsGloballyAsync(true);
-            };
-
             await _client.LoginAsync(TokenType.Bot, config["tokens:discord"]);
             await _client.StartAsync();
-            await _client.SetGameAsync("Wacraft 3");
+            await _client.SetGameAsync("TTT с Лёхой");
             _client.Log += LogAsync;
+
+            _client.Ready += async () =>
+            {
+                if (!_lavaNode.IsConnected)
+                {
+                    try
+                    {
+                        await _lavaNode.ConnectAsync();
+                    }
+                    catch (Exception ex)
+                    {
+                        await Console.Out.WriteLineAsync( ex.Message);
+                    }
+                }
+
+                await Console.Out.WriteLineAsync("Подключенно!");
+
+                try
+                {
+                    await commands.RegisterCommandsGloballyAsync(true);
+                }
+                catch (Exception ex)
+                {
+                    await Console.Out.WriteLineAsync( ex.Message);
+                }
+            };
 
             await Task.Delay(-1);
         }
@@ -112,6 +142,39 @@ namespace HolyHomie
 #else
             return false;
 #endif
+        }
+
+        static Task StartLavalinkAsync()
+        {
+            // written knowing full well there might be other java processes running, but I'm developing this for my Raspi
+            Console.WriteLine("Запускаю Lavalink");
+            try
+            {
+                var processList = Process.GetProcessesByName("java");
+                if (processList.Length == 0)
+                {
+                    string lavalinkFile = Path.Combine(AppContext.BaseDirectory, "Lavalink", "Lavalink.jar");
+                    if (!File.Exists(lavalinkFile)) return Task.CompletedTask;
+
+                    var process = new ProcessStartInfo
+                    {
+                        FileName = "java",
+                        Arguments = $"-jar \"{Path.Combine(AppContext.BaseDirectory, "Lavalink")}/Lavalink.jar\"",
+                        WorkingDirectory = Path.Combine(AppContext.BaseDirectory, "Lavalink"),
+                        UseShellExecute = false,
+                        CreateNoWindow = true
+                    };
+
+                    Process.Start(process);
+                    Console.WriteLine("Lavalink запущен!");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+
+            return Task.CompletedTask;
         }
     }
 }
