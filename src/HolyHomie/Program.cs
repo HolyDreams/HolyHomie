@@ -25,7 +25,7 @@ public class Program
         logger.Information("Запускаю бота...");
 
         var config = new ConfigurationBuilder()
-            .SetBasePath(Directory.GetCurrentDirectory())
+            .SetBasePath(AppContext.BaseDirectory)
             .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
             .Build();
 
@@ -35,9 +35,8 @@ public class Program
             services.AddLogging(a => a.AddSerilog());
             services.AddSingleton<ILavaQueue, LavaQueue>();
             services.Configure<MainOptions>(config.GetSection("MainOptions"));
-            //services.AddHostedService<RunLavalink>();
+            services.AddHostedService<RunLavalink>();
             services.AddHostedService<RunDiscord>();
-            //services.AddDiscordHostedService<Core.Discord.Discord>();
         });
 
         var app = builder.Build();

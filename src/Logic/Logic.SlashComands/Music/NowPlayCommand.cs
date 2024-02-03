@@ -40,13 +40,13 @@ namespace Logic.SlashComands.Music
             var totalLength = track.Info.Length;
             var curLength = player.Player.PlayerState.Position;
 
-            var proc = (int)(totalLength / curLength) / 5;
+            var proc = (int)(totalLength / curLength) / 4;
 
             var playShow = "";
 
-            for (int i = 0; i < 20; i++)
+            for (int i = 0; i < 25; i++)
             {
-                playShow += i == proc ? ">" : "-";
+                playShow += i == proc ? "**>**" : "-";
             }
 
             var embed = new DiscordEmbedBuilder()

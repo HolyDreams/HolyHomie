@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -12,15 +13,10 @@ namespace HolyHomie.Services
     public class RunLavalink : IHostedService
     {
         private Process lavaProcess;
-        private readonly ILogger<RunLavalink> _logger;
-        public RunLavalink(ILogger<RunLavalink> logger)
-        {
-            _logger = logger;
-        }
 
         public Task StartAsync(CancellationToken cancellationToken)
         {
-            _logger.LogInformation("Запускаю Lavalink...");
+            Log.Information("Запускаю Lavalink...");
 
             try
             {
@@ -36,7 +32,7 @@ namespace HolyHomie.Services
                 string lavalinkFile = Path.Combine(AppContext.BaseDirectory, "Lavalink", "Lavalink.jar");
                 if (!File.Exists(lavalinkFile))
                 {
-                    _logger.LogError("Нет файла ../Lavalink/Lavalink.jar");
+                    Log.Error("Нет файла ../Lavalink/Lavalink.jar");
                     return Task.CompletedTask;
                 }
 
@@ -50,12 +46,12 @@ namespace HolyHomie.Services
                 };
 
                 lavaProcess = Process.Start(process);
-                _logger.LogInformation("Lavalink запущен!");
+                Log.Information("Lavalink запущен!");
             }
 
             catch (Exception ex)
             {
-                _logger.LogError(ex.Message);
+                Log.Error(ex.Message);
             }
 
             return Task.CompletedTask;

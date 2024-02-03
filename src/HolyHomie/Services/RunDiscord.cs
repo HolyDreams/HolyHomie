@@ -13,36 +13,36 @@ using DisCatSharp.Interactivity.Enums;
 using DisCatSharp.Entities;
 using DisCatSharp.EventArgs;
 using DisCatSharp.ApplicationCommands;
+using Serilog;
 
 namespace HolyHomie.Services
 {
     public class RunDiscord : IHostedService
     {
-        private readonly MainOptions _options;
-        private readonly ILogger<RunDiscord> _logger;
+        private readonly Discord _options;
         private readonly IServiceProvider _provider;
 
-        public RunDiscord(IOptions<MainOptions> options, ILogger<RunDiscord> logger, IServiceProvider provider)
+        public RunDiscord(IOptions<MainOptions> options, IServiceProvider provider)
         {
-            _options = options.Value;
-            _logger = logger;
+            _options = options.Value.Discord;
             _provider = provider;
         }
 
-        public Task StartAsync(CancellationToken cancellationToken)
+        public async Task StartAsync(CancellationToken cancellationToken)
         {
-            StartAllAsync().GetAwaiter().GetResult();
+            await StartAllAsync();
 
-            return Task.CompletedTask;
+            return;
         }
 
         private async Task StartAllAsync()
         {
+            Log.Information("Запускаю дискорд бота");
             try
             {
                 var client = new DiscordClient(new DiscordConfiguration
                 {
-                    Token = _options.Discord.Token,
+                    Token = _options.Token,
                     TokenType = TokenType.Bot,
                     AutoReconnect = true,
                     MinimumLogLevel = LogLevel.Debug,
@@ -50,7 +50,7 @@ namespace HolyHomie.Services
                     LogTimestampFormat = "dd.MM.yyг - HH:mm:ss"
                 });
 
-                client.RegisterEventHandlers(Assembly.LoadFrom("Logic.Events.dll"));
+                client.RegisterEventHandlers(Assembly.LoadFrom(Path.Combine(AppContext.BaseDirectory, "Logic.Events.dll")));
                 client.ClientErrored += OnClientErrored;
                 client.Ready += OnReady;
 
@@ -67,19 +67,21 @@ namespace HolyHomie.Services
                     EnableDefaultHelp = false
                 });
 
-                slash.RegisterGlobalCommands(Assembly.LoadFrom("Logic.SlashComands.dll"));
+                slash.RegisterGlobalCommands(Assembly.LoadFrom(Path.Combine(AppContext.BaseDirectory, "Logic.SlashComands.dll")));
 
                 await client.ConnectAsync();
 
-                _logger.LogInformation("Подключаюсь к lavalink...");
+                await Task.Delay(30000);
+
+                Log.Information("Подключаюсь к lavalink...");
 
                 var lava = client.UseLavalink();
                 await lava.ConnectAsync(new LavalinkConfiguration());
-                _logger.LogInformation("Успешно подключено к lavalink");
+                Log.Information("Успешно подключено к lavalink");
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex.Message);
+                Log.Error(ex.Message);
             }
         }
         private Task OnReady(DiscordClient sender, ReadyEventArgs e)
